@@ -3,6 +3,7 @@
 namespace Nebkam\ZohoOAuth;
 
 use InvalidArgumentException;
+use LogicException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -17,21 +18,21 @@ class ZohoOAuthService
 	private SerializerInterface $serializer;
 	private ?string $clientId;
 	private ?string $clientSecret;
-	private ?string $refreshTokenSavePath;
+	private ?string $credentialsPath;
 
 	public function __construct(
 		HttpClientInterface $client,
 		SerializerInterface $serializer,
 		?string $clientId,
 		?string $clientSecret,
-		?string $refreshTokenSavePath
+		?string $credentialsPath
 	)
 		{
-		$this->client               = $client;
-		$this->serializer           = $serializer;
-		$this->clientId             = $clientId;
-		$this->clientSecret         = $clientSecret;
-		$this->refreshTokenSavePath = $refreshTokenSavePath;
+		$this->client          = $client;
+		$this->serializer      = $serializer;
+		$this->clientId        = $clientId;
+		$this->clientSecret    = $clientSecret;
+		$this->credentialsPath = $credentialsPath;
 		}
 
 	/**
@@ -64,7 +65,7 @@ class ZohoOAuthService
 				{
 				throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $data->error));
 				}
-			file_put_contents($this->refreshTokenSavePath, $this->serializer->serialize($data, 'json'));
+			$this->persistCredentials($data);
 
 			return $data;
 			}
@@ -72,5 +73,25 @@ class ZohoOAuthService
 			{
 			throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $exception->getMessage()), $exception);
 			}
+		}
+
+	private function persistCredentials(ZohoOAuthResponse $response): void
+		{
+		file_put_contents($this->credentialsPath, $this->serializer->serialize($response, 'json'));
+		}
+
+	/**
+	 * @return ZohoOAuthResponse
+	 * @throws LogicException
+	 */
+	private function readCredentials(): ZohoOAuthResponse
+		{
+		if (file_exists($this->credentialsPath))
+			{
+			/** @var ZohoOAuthResponse $data */
+			return $this->serializer->deserialize(file_get_contents($this->credentialsPath), ZohoOAuthResponse::class, 'json');
+			}
+
+		throw new LogicException('Could not read credentials at ' . $this->credentialsPath . '. Try generating Refresh Token again');
 		}
 	}
