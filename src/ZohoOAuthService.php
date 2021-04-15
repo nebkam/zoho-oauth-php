@@ -27,12 +27,11 @@ class ZohoOAuthService
 		}
 
 	/**
-	 * @param string $product
 	 * @param string $grantToken
 	 * @throws InvalidArgumentException
 	 * @throws ZohoOAuthException
 	 */
-	public function generateRefreshToken(string $product, string $grantToken): void
+	public function generateRefreshToken(string $grantToken): ZohoOAuthResponse
 		{
 		try
 			{
@@ -52,6 +51,8 @@ class ZohoOAuthService
 				{
 				throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $data->error));
 				}
+
+			return $data;
 			}
 		catch (TransportExceptionInterface | RedirectionExceptionInterface | ClientExceptionInterface | ServerExceptionInterface $exception)
 			{

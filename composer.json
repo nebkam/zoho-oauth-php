@@ -10,6 +10,8 @@
     }
   ],
   "require": {
+    "php": "^7.4",
+    "ext-json": "*",
     "symfony/http-client-contracts": "^2.3",
     "symfony/serializer": "^5.2"
   },
