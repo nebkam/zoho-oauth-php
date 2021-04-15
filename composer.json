@@ -1,0 +1,21 @@
+{
+  "name": "nebkam/zoho-oauth-php",
+  "description": "Unofficial Zoho OAuth2 PHP SDK",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Nebojša Kamber",
+      "email": "nebojsa.kamber@4zida.rs"
+    }
+  ],
+  "require": {
+    "symfony/http-client-contracts": "^2.3",
+    "symfony/serializer": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Nebkam\\ZohoOAuth\\": "src"
+    }
+  }
+}
