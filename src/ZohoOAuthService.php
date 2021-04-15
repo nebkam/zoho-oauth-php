@@ -17,17 +17,30 @@ class ZohoOAuthService
 	private SerializerInterface $serializer;
 	private ?string $clientId;
 	private ?string $clientSecret;
+	private ?string $refreshTokenSavePath;
 
-	public function __construct(HttpClientInterface $client, SerializerInterface $serializer, ?string $clientId, ?string $clientSecret)
+	public function __construct(
+		HttpClientInterface $client,
+		SerializerInterface $serializer,
+		?string $clientId,
+		?string $clientSecret,
+		?string $refreshTokenSavePath
+	)
 		{
-		$this->client       = $client;
-		$this->serializer   = $serializer;
-		$this->clientId     = $clientId;
-		$this->clientSecret = $clientSecret;
+		$this->client               = $client;
+		$this->serializer           = $serializer;
+		$this->clientId             = $clientId;
+		$this->clientSecret         = $clientSecret;
+		$this->refreshTokenSavePath = $refreshTokenSavePath;
 		}
 
 	/**
+	 * Generates and saves the refresh token to filesystem.
+	 * Should be done only once per deploy, because the refresh token is used to get more access tokens afterwards.
+	 * Remember, one grant token can be used only once.
+	 *
 	 * @param string $grantToken
+	 * @return ZohoOAuthResponse
 	 * @throws InvalidArgumentException
 	 * @throws ZohoOAuthException
 	 */
@@ -35,7 +48,7 @@ class ZohoOAuthService
 		{
 		try
 			{
-			$response = $this->client->request('POST', self::ENDPOINT.'token', [
+			$response = $this->client->request('POST', self::ENDPOINT . 'token', [
 				'body' => [
 					'response_type' => 'code',
 					'grant_type'    => 'authorization_code',
@@ -51,6 +64,7 @@ class ZohoOAuthService
 				{
 				throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $data->error));
 				}
+			file_put_contents($this->refreshTokenSavePath, $this->serializer->serialize($data, 'json'));
 
 			return $data;
 			}
