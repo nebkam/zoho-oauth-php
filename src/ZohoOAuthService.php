@@ -2,8 +2,6 @@
 
 namespace Nebkam\ZohoOAuth;
 
-use InvalidArgumentException;
-use LogicException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -42,47 +40,94 @@ class ZohoOAuthService
 	 *
 	 * @param string $grantToken
 	 * @return ZohoOAuthResponse
-	 * @throws InvalidArgumentException
 	 * @throws ZohoOAuthException
 	 */
 	public function generateCredentials(string $grantToken): ZohoOAuthResponse
 		{
+		$credentials = $this->fetchCredentials([
+			'response_type' => 'code',
+			'grant_type'    => 'authorization_code',
+			'access_type'   => 'offline',
+			'code'          => $grantToken
+		], 'Couldn\'t generate refresh token: %s');
+		$this->persistCredentials($credentials);
+
+		return $credentials;
+		}
+
+	/**
+	 * @return ZohoOAuthResponse
+	 * @throws ZohoOAuthException
+	 */
+	public function refreshAccessToken(): ZohoOAuthResponse
+		{
+		$credentials              = $this->readCredentials();
+		$updated                  = $this->fetchCredentials([
+			'grant_type'    => 'refresh_token',
+			'refresh_token' => $credentials->refreshToken,
+		], 'Couldn\'t refresh access token: %s');
+		$credentials->accessToken = $updated->accessToken;
+		$this->persistCredentials($credentials);
+
+		return $credentials;
+		}
+
+	/**
+	 * @return string|null
+	 * @throws ZohoOAuthException
+	 */
+	public function getAccessToken(): ?string
+		{
+		return $this->readCredentials()->accessToken;
+		}
+
+	/**
+	 * @param array $params
+	 * @param string $exceptionMessage
+	 * @return ZohoOAuthResponse
+	 * @throws ZohoOAuthException
+	 */
+	private function fetchCredentials(array $params, string $exceptionMessage): ZohoOAuthResponse
+		{
+		$params = array_merge([
+			'client_id'     => $this->clientId,
+			'client_secret' => $this->clientSecret
+		], $params);
 		try
 			{
 			$response = $this->client->request('POST', self::ENDPOINT . 'token', [
-				'body' => [
-					'response_type' => 'code',
-					'grant_type'    => 'authorization_code',
-					'access_type'   => 'offline',
-					'client_id'     => $this->clientId,
-					'client_secret' => $this->clientSecret,
-					'code'          => $grantToken
-				]
+				'body' => $params
 			]);
 			/** @var ZohoOAuthResponse $data */
 			$data = $this->serializer->deserialize($response->getContent(), ZohoOAuthResponse::class, 'json');
 			if ($data->error)
 				{
-				throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $data->error));
+				throw new ZohoOAuthException(sprintf($exceptionMessage, $data->error));
 				}
-			$this->persistCredentials($data);
 
 			return $data;
 			}
 		catch (TransportExceptionInterface | RedirectionExceptionInterface | ClientExceptionInterface | ServerExceptionInterface $exception)
 			{
-			throw new ZohoOAuthException(sprintf('Couldn\'t generate refresh token: %s', $exception->getMessage()), $exception);
+			throw new ZohoOAuthException(sprintf($exceptionMessage, $exception->getMessage()), $exception);
 			}
 		}
 
+	/**
+	 * @throws ZohoOAuthException
+	 */
 	private function persistCredentials(ZohoOAuthResponse $response): void
 		{
-		file_put_contents($this->credentialsPath, $this->serializer->serialize($response, 'json'));
+		$saved = file_put_contents($this->credentialsPath, $this->serializer->serialize($response, 'json'));
+		if ($saved === false)
+			{
+			throw new ZohoOAuthException(sprintf('Could not save credentials at `%s`. Check the file permissions', $this->credentialsPath));
+			}
 		}
 
 	/**
 	 * @return ZohoOAuthResponse
-	 * @throws LogicException
+	 * @throws ZohoOAuthException
 	 */
 	private function readCredentials(): ZohoOAuthResponse
 		{
@@ -92,6 +137,6 @@ class ZohoOAuthService
 			return $this->serializer->deserialize(file_get_contents($this->credentialsPath), ZohoOAuthResponse::class, 'json');
 			}
 
-		throw new LogicException('Could not read credentials at ' . $this->credentialsPath . '. Try generating Refresh Token again');
+		throw new ZohoOAuthException(sprintf('Could not read credentials at `%s`. Try generating credentials again', $this->credentialsPath));
 		}
 	}
