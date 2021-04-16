@@ -73,12 +73,12 @@ class ZohoOAuthService
 		}
 
 	/**
-	 * @return string|null
+	 * @return ZohoOAuthResponse
 	 * @throws ZohoOAuthException
 	 */
-	public function getAccessToken(): ?string
+	public function getCredentials(): ZohoOAuthResponse
 		{
-		return $this->readCredentials()->accessToken;
+		return $this->readCredentials();
 		}
 
 	/**
