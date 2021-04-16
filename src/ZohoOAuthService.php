@@ -36,7 +36,7 @@ class ZohoOAuthService
 		}
 
 	/**
-	 * Generates and saves the refresh token to filesystem.
+	 * Generates and saves the credentials (access token and refresh token) to filesystem (credentialsPath)
 	 * Should be done only once per deploy, because the refresh token is used to get more access tokens afterwards.
 	 * Remember, one grant token can be used only once.
 	 *
@@ -45,7 +45,7 @@ class ZohoOAuthService
 	 * @throws InvalidArgumentException
 	 * @throws ZohoOAuthException
 	 */
-	public function generateRefreshToken(string $grantToken): ZohoOAuthResponse
+	public function generateCredentials(string $grantToken): ZohoOAuthResponse
 		{
 		try
 			{
