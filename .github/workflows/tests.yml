@@ -33,11 +33,11 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
           
       - name: Load configuration
-        run: echo "${{ secrets.ZOHOINVOICE_CREDENTIALS_BASE64 }}" | base64 --decode > ./credentials.json
+        run: echo "${{ secrets.CREDENTIALS_BASE64 }}" | base64 --decode > ./credentials.json
           
       - name: Run tests
         env:
-          CLIENT_ID: ${{ secrets.ZOHOOAUTH_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.ZOHOOAUTH_CLIENT_SECRET }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           CREDENTIALS_PATH: ./credentials.json
         run: ./vendor/phpunit/phpunit/phpunit
