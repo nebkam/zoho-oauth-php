@@ -2,5 +2,9 @@
 /composer.phar
 /composer.lock
 /vendor/
+# PHPUnit
+/phpunit.xml
+.phpunit.result.cache
 # Local settings
-.idea/
+/.idea/
+credentials.json
