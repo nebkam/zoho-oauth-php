@@ -1,1 +1,1 @@
-PHP7.1 compatible branch
+[![Legacy Tests](https://github.com/nebkam/zoho-oauth-php/actions/workflows/legacy-tests.yml/badge.svg?branch=legacy)](https://github.com/nebkam/zoho-oauth-php/actions/workflows/legacy-tests.yml)
