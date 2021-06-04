@@ -31,26 +31,26 @@ class ZohoOAuthResponse
 	/**
 	 * @var string|null
 	 */
-	public $accessToken;
+	public $access_token;
 
 	/**
 	 * @var string|null
 	 */
-	public $refreshToken;
+	public $refresh_token;
 
 	/**
 	 * Expires in (seconds)
 	 * @var int|null
 	 */
-	public $expiresIn;
+	public $expires_in;
 
 	/**
 	 * @var string|null
 	 */
-	public $apiDomain;
+	public $api_domain;
 
 	/**
 	 * @var string|null
 	 */
-	public $tokenType;
+	public $token_type;
 	}

@@ -64,12 +64,12 @@ class ZohoOAuthService
 	 */
 	public function refreshAccessToken(): ZohoOAuthResponse
 		{
-		$credentials              = $this->readCredentials();
-		$updated                  = $this->fetchCredentials([
+		$credentials               = $this->readCredentials();
+		$updated                   = $this->fetchCredentials([
 			'grant_type'    => 'refresh_token',
-			'refresh_token' => $credentials->refreshToken,
+			'refresh_token' => $credentials->refresh_token,
 		], 'Couldn\'t refresh access token: %s');
-		$credentials->accessToken = $updated->accessToken;
+		$credentials->access_token = $updated->access_token;
 		$this->persistCredentials($credentials);
 
 		return $credentials;
