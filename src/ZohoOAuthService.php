@@ -2,24 +2,27 @@
 
 namespace Nebkam\ZohoOAuth;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ZohoOAuthService
 	{
 	private const ENDPOINT = 'https://accounts.zoho.eu/oauth/v2/';
-	private HttpClientInterface $client;
-	private SerializerInterface $serializer;
-	private ?string $clientId;
-	private ?string $clientSecret;
-	private ?string $credentialsPath;
+	/** @var Client $client  */
+	private $client;
+	/** @var SerializerInterface $serializer */
+	private $serializer;
+	/** @var string|null $clientId */
+	private $clientId;
+	/** @var string|null $clientSecret */
+	private $clientSecret;
+	/** @var string|null $credentialsPath */
+	private $credentialsPath;
 
 	public function __construct(
-		HttpClientInterface $client,
+		Client $client,
 		SerializerInterface $serializer,
 		?string $clientId,
 		?string $clientSecret,
@@ -96,10 +99,10 @@ class ZohoOAuthService
 		try
 			{
 			$response = $this->client->request('POST', self::ENDPOINT . 'token', [
-				'body' => $params
+				RequestOptions::FORM_PARAMS => $params
 			]);
 			/** @var ZohoOAuthResponse $data */
-			$data = $this->serializer->deserialize($response->getContent(), ZohoOAuthResponse::class, 'json');
+			$data = $this->serializer->deserialize((string) $response->getBody(), ZohoOAuthResponse::class, 'json');
 			if ($data->error)
 				{
 				throw new ZohoOAuthException(sprintf($exceptionMessage, $data->error));
@@ -107,7 +110,7 @@ class ZohoOAuthService
 
 			return $data;
 			}
-		catch (TransportExceptionInterface | RedirectionExceptionInterface | ClientExceptionInterface | ServerExceptionInterface $exception)
+		catch (GuzzleException $exception)
 			{
 			throw new ZohoOAuthException(sprintf($exceptionMessage, $exception->getMessage()), $exception);
 			}
@@ -134,6 +137,7 @@ class ZohoOAuthService
 		if (file_exists($this->credentialsPath))
 			{
 			/** @var ZohoOAuthResponse $data */
+			/** @noinspection PhpIncompatibleReturnTypeInspection */
 			return $this->serializer->deserialize(file_get_contents($this->credentialsPath), ZohoOAuthResponse::class, 'json');
 			}
 

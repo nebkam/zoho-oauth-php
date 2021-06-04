@@ -2,8 +2,6 @@
 
 namespace Nebkam\ZohoOAuth;
 
-use Symfony\Component\Serializer\Annotation\SerializedName;
-
 /**
  * @see https://www.zoho.com/crm/developer/docs/api/v2.1/access-refresh.html
  */
@@ -26,31 +24,33 @@ class ZohoOAuthResponse
 	/**
 	 * @see ERROR_INVALID_CLIENT
 	 * @see ERROR_INVALID_CODE
+	 * @var string|null
 	 */
-	public ?string $error = null;
+	public $error = null;
 
 	/**
-	 * @SerializedName("access_token")
+	 * @var string|null
 	 */
-	public ?string $accessToken;
+	public $accessToken;
 
 	/**
-	 * @SerializedName("refresh_token")
+	 * @var string|null
 	 */
-	public ?string $refreshToken;
+	public $refreshToken;
 
 	/**
-	 * @SerializedName("expires_in")
+	 * Expires in (seconds)
+	 * @var int|null
 	 */
-	public ?int $expiresInSeconds;
+	public $expiresIn;
 
 	/**
-	 * @SerializedName("api_domain")
+	 * @var string|null
 	 */
-	public ?string $apiDomain;
+	public $apiDomain;
 
 	/**
-	 * @SerializedName("token_type")
+	 * @var string|null
 	 */
-	public ?string $tokenType;
+	public $tokenType;
 	}
