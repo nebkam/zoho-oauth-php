@@ -45,16 +45,37 @@ class ZohoAuthServiceTest extends TestCase
 	 */
 	public function testInit(): ZohoOAuthService
 		{
-		$auth = new ZohoOAuthService(
+		$service = new ZohoOAuthService(
 			new NativeHttpClient(),
 			self::createSerializer(),
 			getenv('CLIENT_ID'),
 			getenv('CLIENT_SECRET'),
 			getenv('CREDENTIALS_PATH')
 		);
-		$auth->refreshAccessToken();
-		$this->assertNotNull($auth);
+		$this->assertNotNull($service);
 
-		return $auth;
+		return $service;
+		}
+
+	/**
+	 * @depends testInit
+	 * @param ZohoOAuthService $service
+	 */
+	public function testReadCredentials(ZohoOAuthService $service): void
+		{
+		$credentials = $service->getCredentials();
+		$this->assertNotEmpty($credentials->accessToken);
+		$this->assertNotEmpty($credentials->refreshToken);
+		}
+
+	/**
+	 * @depends testInit
+	 * @param ZohoOAuthService $service
+	 */
+	public function testRefreshCredentials(ZohoOAuthService $service): void
+		{
+		$credentials = $service->refreshAccessToken();
+		$this->assertNotEmpty($credentials->accessToken);
+		$this->assertNotEmpty($credentials->refreshToken);
 		}
 	}
