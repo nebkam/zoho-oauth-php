@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup PHP and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+        
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+            
+      - name: Install dependencies
+        run: composer install
+        env:
+          COMPOSER_NO_INTERACTION: 1
+          
+      - name: Load configuration
+        run: echo "${{ secrets.ZOHOINVOICE_CREDENTIALS_BASE64 }}" | base64 --decode > ./credentials.json
+          
+      - name: Run tests
+        env:
+          CLIENT_ID: ${{ secrets.ZOHOOAUTH_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.ZOHOOAUTH_CLIENT_SECRET }}
+          CREDENTIALS_PATH: ./credentials.json
+        run: ./vendor/phpunit/phpunit/phpunit
