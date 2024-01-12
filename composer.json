@@ -7,16 +7,21 @@
     {
       "name": "Nebojša Kamber",
       "email": "nebojsa.kamber@4zida.rs"
+    },
+    {
+      "name": "Igor Vidic",
+      "email": "igor.vidic@4zida.rs"
     }
   ],
   "require": {
-    "php": "^7.4",
+    "php": "^8.2",
     "ext-json": "*",
-    "symfony/http-client-contracts": "^2.3",
-    "symfony/serializer": "^5.2",
+    "symfony/serializer": "6.4",
     "doctrine/annotations": "^1.13",
-    "symfony/property-info": "^5.3",
-    "symfony/property-access": "^5.3"
+    "symfony/property-info": "6.4",
+    "symfony/property-access": "6.4",
+    "symfony/http-client-contracts": "^3.4",
+    "phpdocumentor/reflection-docblock": "^5.3"
   },
   "autoload": {
     "psr-4": {
@@ -30,7 +35,7 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5",
-    "symfony/http-client": "^5.3",
-    "symfony/var-dumper": "^5.3"
+    "symfony/http-client": "6.4",
+    "symfony/var-dumper": "6.4"
   }
 }

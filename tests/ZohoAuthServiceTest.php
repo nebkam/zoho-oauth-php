@@ -2,14 +2,13 @@
 
 namespace Tests;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Nebkam\ZohoOAuth\ZohoOAuthService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -19,7 +18,7 @@ class ZohoAuthServiceTest extends TestCase
 	{
 	private static function createSerializer(): SerializerInterface
 		{
-		$classMetadataFactory   = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+		$classMetadataFactory   = new ClassMetadataFactory(new AttributeLoader());
 		$snakeCaseNameConverter = new CamelCaseToSnakeCaseNameConverter();
 		$objectNormalizer       = new ObjectNormalizer(
 			$classMetadataFactory,
